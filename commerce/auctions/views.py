@@ -9,10 +9,16 @@ from .models import User
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    context = {
+        'context_menu_pos': 1,
+    }
+    return render(request, "auctions/index.html", context)
 
 
 def login_view(request):
+    context = {
+        'context_menu_pos': 1,
+    }
     if request.method == "POST":
 
         # Attempt to sign user in
@@ -25,11 +31,10 @@ def login_view(request):
             login(request, user)
             return HttpResponseRedirect(reverse("index"))
         else:
-            return render(request, "auctions/login.html", {
-                "message": "Invalid username and/or password."
-            })
+            context["message"] = "Invalid username and/or password."
+            return render(request, "auctions/login.html", context)
     else:
-        return render(request, "auctions/login.html")
+        return render(request, "auctions/login.html", context)
 
 
 def logout_view(request):
@@ -38,6 +43,9 @@ def logout_view(request):
 
 
 def register(request):
+    context = {
+        'context_menu_pos': 1,
+    }
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
@@ -46,33 +54,40 @@ def register(request):
         password = request.POST["password"]
         confirmation = request.POST["confirmation"]
         if password != confirmation:
-            return render(request, "auctions/register.html", {
-                "message": "Passwords must match."
-            })
+            context["message"] = "Passwords must match."
+            return render(request, "auctions/register.html", context)
 
         # Attempt to create new user
         try:
             user = User.objects.create_user(username, email, password)
             user.save()
         except IntegrityError:
-            return render(request, "auctions/register.html", {
-                "message": "Username already taken."
-            })
+            context["message"] = "Username already taken."
+            return render(request, "auctions/register.html", context)
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/register.html")
+        return render(request, "auctions/register.html", context)
 
 
 @login_required
 def create_listing(request):
-    return render(request, "auctions/create_listing.html")
+    context = {
+        'context_menu_pos': 4,
+    }
+    return render(request, "auctions/create_listing.html", context)
 
 
 def categories(request):
-    return render(request, "auctions/categories.html")
+    context = {
+        'context_menu_pos': 2,
+    }
+    return render(request, "auctions/categories.html", context)
 
 
 @login_required
 def watchlist(request):
-    return render(request, "auctions/watchlist.html")
+    context = {
+        'context_menu_pos': 3,
+    }
+    return render(request, "auctions/watchlist.html", context)

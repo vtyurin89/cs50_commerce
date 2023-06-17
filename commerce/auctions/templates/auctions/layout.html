@@ -18,19 +18,8 @@
             {% endif %}
         </div>
         <ul class="nav">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'index' %}">Active Listings</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'categories' %}">Categories</a>
-            </li>
+
             {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'watchlist' %}">Watchlist</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'create_listing' %}">Create Listing</a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
                 </li>
@@ -43,6 +32,25 @@
                 </li>
             {% endif %}
         </ul>
+
+        <!-- Navbar -->
+        <ul class="nav nav-tabs">
+        {% for item in menu %}
+        {% if item.menu_pos == context_menu_pos %}
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="{% url item.url_name %}">{{ item.title }}</a>
+      </li>
+         {% elif not user.is_authenticated and item.needs_authentication %}
+
+        {% else %}
+      <li class="nav-item">
+        <a class="nav-link" href="{% url item.url_name %}">{{ item.title }}</a>
+      </li>
+        {% endif %}
+        {% endfor %}
+        </ul>
+    <!-- Navbar ends -->
+
     </header>
         <hr>
     <main>
