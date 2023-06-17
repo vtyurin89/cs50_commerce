@@ -1,7 +1,16 @@
 {% extends "auctions/layout.html" %}
 
+{% block title %}Create listing{% endblock title %}
+
 {% block body %}
     <h2>Create listing</h2>
-
-    TODO
+    <form method="post">
+    {% csrf_token %}
+    {% for part in form %}
+    <div><label class="new-entry-form" for="{{ part.id_for_label }}"> {{ part.label }}: </label><div class="new-entry-form-textarea">{{ part }}</div></div>
+    <div>{{ part.errors }}</div>
+    {% endfor %}
+    <div>{{ form.non_field_errors }}</div>
+        <button type="submit">Submit</button>
+    </form>
 {% endblock %}

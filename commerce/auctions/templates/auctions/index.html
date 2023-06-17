@@ -1,7 +1,16 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <!-- Categories -->
+    <div class="container">
+    <div class="d-flex flex-row justify-content-center flex-wrap">
+    {% for category in categories %}
+    <a class="me-3" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+    {% endfor %}
+     </div>
+    </div>
+    <hr>
 
+    <h3>Active Listings</h3>
     TODO
 {% endblock %}

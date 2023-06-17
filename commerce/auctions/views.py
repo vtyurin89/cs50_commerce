@@ -2,16 +2,20 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import User
+from .models import User, Category, Listing, Bid, Comment
+from .forms import CreateListingForm
 
 
 def index(request):
+    categories = Category.objects.all()
     context = {
         'context_menu_pos': 1,
+        'categories': categories,
     }
+    print(context)
     return render(request, "auctions/index.html", context)
 
 
@@ -72,8 +76,14 @@ def register(request):
 
 @login_required
 def create_listing(request):
+    form = CreateListingForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('index')
     context = {
         'context_menu_pos': 4,
+        'form': form,
     }
     return render(request, "auctions/create_listing.html", context)
 
@@ -91,3 +101,12 @@ def watchlist(request):
         'context_menu_pos': 3,
     }
     return render(request, "auctions/watchlist.html", context)
+
+
+def show_category(request, cat_slug):
+    category = Category.objects.get(slug=cat_slug)
+    context = {
+        'context_menu_pos': 2,
+        'category': category,
+    }
+    return render(request, "auctions/show_category.html", context)
