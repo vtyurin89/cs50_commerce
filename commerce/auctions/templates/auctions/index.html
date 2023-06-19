@@ -11,6 +11,32 @@
     </div>
     <hr>
 
+    <!-- Listings -->
     <h3>Active Listings</h3>
-    TODO
+    <div class="container mt-3">
+    <div class="row row-cols-1 row-cols-sm-6 row-cols-md-3 g-4">
+    {% for listing in page_obj %}
+    <div class="col-lg-3 col-md-6">
+        <div class="card">
+        <div class="card-body">
+            {% if listing.image %}
+        <div class="img-top"><a href="{{ listing.get_absolute_url }}"><img src="{{ listing.image }}" class="card-img-top" alt="Not Found" onerror=""></a></div>
+            {% else %}
+            {% load static %}
+        <div class="img-top"><a href="{{ listing.get_absolute_url }}"><img src="{% static 'auctions/no_image.png' %}" class="card-img-top" alt="Not Found" onerror=""></a></div>
+            {% endif %}
+        <h6 class="card-title mt-3"><a href="{{ listing.get_absolute_url }}">
+            {{ listing.title|truncatechars:70 }}
+        </a></h6>
+         <div class="card-text">{{ listing.description|linebreaks }}</div>
+        </div>
+        <div class="card-footer bg-transparent">
+                <b>{{ listing.usd_price }}</b>
+        </div>
+        </div>
+        </div>
+
+    {% endfor %}
+    </div>
+    </div>
 {% endblock %}

@@ -10,7 +10,7 @@
     </head>
     <body>
     <header>
-            <ul class="nav mt-1 justify-content-end">
+            <ul class="nav mt-1 mb-1 justify-content-end">
             {% if user.is_authenticated %}
                 <div class="ms-3">Signed in as <strong>{{ user.username }}</strong>.</div>
             {% else %}
@@ -29,7 +29,7 @@
                 </li>
             {% endif %}
             </ul>
-        <hr>
+        <hr class="mt-0">
         <h1>Auctions</h1>
 
         <!-- Navbar -->
@@ -56,5 +56,40 @@
         {% block body %}
         {% endblock %}
     </main>
+
+
+     <!-- Here goes pagination!
+          -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="page navigation" class="mt-3">
+        <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lt</a>
+        </li>
+        {% endif %}
+
+        {% for page in page_obj.paginator.page_range %}
+        {% if page_obj.number == page %}
+        <li class="page-item">
+            <a class="page-link" style="color:black; text-decoration: none;">{{ page }}</a>
+        </li>
+        {% elif page >= page_obj.number|add:-2 and page <= page_obj.number|add:2 %}
+        <li class="page-num">
+            <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">&gt</a>
+        </li>
+
+        {% endif %}
+        {% endif %}
+        </ul>
+        </nav>
+
     </body>
 </html>

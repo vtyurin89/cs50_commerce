@@ -3,7 +3,11 @@
 {% block title %}Categories{% endblock title %}
 
 {% block body %}
-    <h2>Categories</h2>
+    <h2>Auctions categories:</h2>
+    <div class="container mt-3">
+    {% for category in categories %}
+    <h3><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></h3>
+    {% endfor %}
+    </div>
 
-    TODO
 {% endblock %}

@@ -1,21 +1,39 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .models import User, Category, Listing, Bid, Comment
 from .forms import CreateListingForm
+from .utils import check_cyrillic, translate_cyrillic, create_unique_slug
+
+"""
+TODO
+ - Add positive price validator
+"""
+
 
 
 def index(request):
     categories = Category.objects.all()
+    active_listings = Listing.objects.filter(is_active=True).order_by("-id")
+
+    #pagination
+    pagination_range = 12
+    paginator = Paginator(active_listings, pagination_range)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
         'context_menu_pos': 1,
         'categories': categories,
+        'listings': active_listings,
+        'page_obj': page_obj,
     }
-    print(context)
     return render(request, "auctions/index.html", context)
 
 
@@ -79,7 +97,15 @@ def create_listing(request):
     form = CreateListingForm(request.POST or None)
     if request.method == 'POST':
         if form.is_valid():
-            form.save()
+            new_listing = form.save(commit=False)
+            new_listing.creator = request.user
+            find_cyrillic = check_cyrillic(new_listing.title)
+            if find_cyrillic:
+                translated_title = translate_cyrillic(new_listing.title)
+                new_listing.slug = create_unique_slug(translated_title)
+            else:
+                new_listing.slug = create_unique_slug(new_listing.title)
+            new_listing.save()
             return redirect('index')
     context = {
         'context_menu_pos': 4,
@@ -89,8 +115,10 @@ def create_listing(request):
 
 
 def categories(request):
+    categories = Category.objects.all()
     context = {
         'context_menu_pos': 2,
+        'categories': categories,
     }
     return render(request, "auctions/categories.html", context)
 
@@ -105,8 +133,29 @@ def watchlist(request):
 
 def show_category(request, cat_slug):
     category = Category.objects.get(slug=cat_slug)
+    cat_listings = Listing.objects.filter(cat=category).order_by("-id")
+
+    #pagination
+    pagination_range = 12
+    paginator = Paginator(cat_listings, pagination_range)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
         'context_menu_pos': 2,
         'category': category,
+        'page_obj': page_obj,
     }
     return render(request, "auctions/show_category.html", context)
+
+
+def show_listing(request, listing_slug):
+    try:
+        listing = Listing.objects.get(slug=listing_slug)
+    except ObjectDoesNotExist:
+        raise Http404
+    context = {
+        'context_menu_pos': 1,
+        'listing': listing,
+    }
+    return render(request, "auctions/show_listing.html", context)

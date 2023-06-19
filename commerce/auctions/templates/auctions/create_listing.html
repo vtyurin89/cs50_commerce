@@ -7,10 +7,16 @@
     <form method="post">
     {% csrf_token %}
     {% for part in form %}
-    <div><label class="new-entry-form" for="{{ part.id_for_label }}"> {{ part.label }}: </label><div class="new-entry-form-textarea">{{ part }}</div></div>
+    {% if part.label == 'Starting bid' %}
+    <div><label class="form-label" for="{{ part.id_for_label }}"> {{ part.label }}: </label>
+        <div class="input-group"><div class="input-group-text">$</div> {{ part }}</div></div>
     <div>{{ part.errors }}</div>
+    {% else %}
+    <div><label class="form-label" for="{{ part.id_for_label }}"> {{ part.label }}: </label><div class="new-entry-form-textarea">{{ part }}</div></div>
+    <div>{{ part.errors }}</div>
+    {% endif %}
     {% endfor %}
     <div>{{ form.non_field_errors }}</div>
-        <button type="submit">Submit</button>
+        <button class="btn btn-primary mt-3" type="submit">Submit</button>
     </form>
 {% endblock %}

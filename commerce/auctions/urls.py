@@ -11,4 +11,5 @@ urlpatterns = [
     path("categories", views.categories, name='categories'),
     path("watchlist", views.watchlist, name='watchlist'),
     path('category/<slug:cat_slug>', views.show_category, name='show_category'),
+    path('listing/<slug:listing_slug>', views.show_listing, name='show_listing'),
 ]
