@@ -5,13 +5,34 @@
 {% block body %}
     <div class="d-flex p-2">
     <div class="border" style="height: 500px; width: 500px;">
-    <img src="{{ listing.image }}" class="card-img-top" alt="Not Found" onerror="">
+    <div class="wrapper">
+        {% if listing.image %}
+    <img src="{{ listing.image }}" class="listing-show-image" alt="Not Found" onerror="">
+        {% else %}
+            {% load static %}
+       <img src="{% static 'auctions/no_image.png' %}" class="listing-show-image" alt="Not Found" onerror="">
+            {% endif %}
+        </div>
     </div>
     <div class="ms-3">
         <div><h4>{{ listing.title }}</h4></div>
         <hr>
         <div><div class="d-inline-flex"><b>Seller:</b><div class="ms-3">{{ listing.creator }}</div></div></div>
-        <div><div class="d-inline-flex"><b>Starting price:</b><h3 class="ms-3">{{ listing.usd_price }}</h3></div></div>
+        <div><div class="d-inline-flex"><b>Starting price:</b><h2 class="ms-3">{{ listing.usd_price }}</h2></div></div>
+        <div><div class="d-inline-flex"><b>Bids:</b><h2 class="ms-3">{{ bids.count }}</h2></div></div>
+
+        {% if user.is_authenticated %}
+        <form method="post" class="mt-3">
+            {% csrf_token %}
+            {% for  part in bid_form %}
+            <div class="new-entry-form-textarea">{{ part }}</div>
+            <div>{{ part.errors }}</div>
+            {% endfor %}
+             <div>{{ form.non_field_errors }}</div>
+        <button type="submit" class="btn btn-primary btn-lg mt-3">Place bid</button>
+        </form>
+        {% endif %}
+
     </div>
     </div>
     <div class="container mt-3 pt-3 pb-3 ps-5 pe-5 border">
@@ -20,8 +41,46 @@
             {{ listing.description|linebreaks }}
         </div>
     </div>
-        <div class="container p-3">
+
+    <!-- Comment section -->
+        <div class="container p-3 mt-3">
         <h4>Comments:</h4>
+    <div class="container pt-3 pb-3">
+    <div class="row d-flex justify-content-center">
+    <div class="col-md-12 col-lg-11">
+            {% if user.is_authenticated %}
+            <div class="card-body p-4 mb-3 border">
+            <div class="d-flex flex-start">
+                <div class=""><span class="img-placeholder"></span></div>
+                <div class="ms-3 w-100">
+                <form method="post">
+                {% csrf_token %}
+                <textarea class="form-control" rows="4"
+                  style="background: #fff;" placeholder="Message" name="comment"></textarea>
+                <button type="submit" class="btn btn-primary mt-3 ps-3 pe-3">Post comment</button>
+                </form>
+                </div>
+            </div>
+            </div>
+            {% endif %}
+
+            {% if comments %}
+            {% for comment in comments %}
+            <div class="card-body p-4 mb-3 border">
+            <div class="d-flex flex-start">
+                <div><span class="img-placeholder"></span></div>
+                <div class="ms-3">
+                    <h6 class="mb-1">{{ comment.comment_author }}</h6>
+                    <p class="text-secondary">{{ comment.timestamp }}</p>
+                    <p class="mb-0">{{ comment.comment_text }}</p>
+                </div>
+            </div>
+            </div>
+            {% endfor %}
+      </div>
+      </div>
+            </div>
+    {% endif %}
 
     </div>
 {% endblock %}

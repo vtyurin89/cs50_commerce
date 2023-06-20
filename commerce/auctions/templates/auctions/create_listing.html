@@ -12,7 +12,8 @@
         <div class="input-group"><div class="input-group-text">$</div> {{ part }}</div></div>
     <div>{{ part.errors }}</div>
     {% else %}
-    <div><label class="form-label" for="{{ part.id_for_label }}"> {{ part.label }}: </label><div class="new-entry-form-textarea">{{ part }}</div></div>
+    <div><label class="form-label" for="{{ part.id_for_label }}"> {{ part.label }}: </label>
+        <div class="new-entry-form-textarea">{{ part }}</div></div>
     <div>{{ part.errors }}</div>
     {% endif %}
     {% endfor %}

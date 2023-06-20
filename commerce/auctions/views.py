@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from .models import User, Category, Listing, Bid, Comment
-from .forms import CreateListingForm
+from .forms import CreateListingForm, BidAmountForm
 from .utils import check_cyrillic, translate_cyrillic, create_unique_slug
 
 """
@@ -154,8 +154,26 @@ def show_listing(request, listing_slug):
         listing = Listing.objects.get(slug=listing_slug)
     except ObjectDoesNotExist:
         raise Http404
+    bid_form = BidAmountForm(request.POST or None)
+    if request.method=='POST':
+        if 'bid_amount' in request.POST:
+            bid_form = BidAmountForm(request.POST)
+            if bid_form.is_valid():
+                return redirect('show_listing', listing_slug=listing_slug)
+        elif 'comment' in request.POST:
+            new_comment = Comment.objects.create(
+                comment_text=request.POST['comment'],
+                comment_author=request.user,
+                listing=listing,
+            )
+            return redirect('show_listing', listing_slug=listing_slug)
+    bids = Bid.objects.filter(listing=listing)
+    comments = Comment.objects.filter(listing=listing, is_active=True).order_by("-id")
     context = {
         'context_menu_pos': 1,
         'listing': listing,
+        'bids': bids,
+        'comments': comments,
+        'bid_form': bid_form,
     }
     return render(request, "auctions/show_listing.html", context)
