@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Paginator
 from django.db import IntegrityError
+from django.db.models import Max
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -14,6 +15,9 @@ from .utils import check_cyrillic, translate_cyrillic, create_unique_slug
 """
 TODO
  - Add positive price validator
+ - Bids price - floatfield
+ - No null comments
+ - Make category optional
 """
 
 
@@ -155,24 +159,34 @@ def show_listing(request, listing_slug):
     except ObjectDoesNotExist:
         raise Http404
     bid_form = BidAmountForm(request.POST or None)
+
     if request.method=='POST':
         if 'bid_amount' in request.POST:
-            bid_form = BidAmountForm(request.POST)
+            bid_form = BidAmountForm(request.POST, listing=listing)
             if bid_form.is_valid():
+                new_bid = bid_form.save(commit=False)
+                new_bid.bidder = request.user
+                new_bid.listing = listing
+                new_bid.save()
                 return redirect('show_listing', listing_slug=listing_slug)
-        elif 'comment' in request.POST:
+
+        elif 'comment' in request.POST and request.POST['comment'] != '':
             new_comment = Comment.objects.create(
                 comment_text=request.POST['comment'],
                 comment_author=request.user,
                 listing=listing,
             )
             return redirect('show_listing', listing_slug=listing_slug)
-    bids = Bid.objects.filter(listing=listing)
+    bids = Bid.objects.filter(listing=listing).order_by("-bid_amount")
+    max_bid = None
+    if bids:
+        max_bid = bids[0]
     comments = Comment.objects.filter(listing=listing, is_active=True).order_by("-id")
     context = {
         'context_menu_pos': 1,
         'listing': listing,
         'bids': bids,
+        'max_bid': max_bid,
         'comments': comments,
         'bid_form': bid_form,
     }

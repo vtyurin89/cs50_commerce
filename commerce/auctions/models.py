@@ -53,7 +53,10 @@ class Bid(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name='Timestamp')
 
     def __str__(self):
-        return f'{self.bidder} bet {self.bid_amount}'
+        return f'{self.bidder} bid {self.bid_amount}'
+
+    def usd_bid_amount(self):
+        return "USD {:,.2f}".format(self.bid_amount)
 
 
 class Comment(models.Model):
