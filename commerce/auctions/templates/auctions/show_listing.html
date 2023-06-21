@@ -1,6 +1,6 @@
 {% extends "auctions/layout.html" %}
 
-{% block title %}Listing{% endblock title %}
+{% block title %}{{ listing.title }}{% endblock title %}
 
 {% block body %}
     <div class="d-flex p-2">
@@ -37,8 +37,8 @@
 
         {% if not listing.is_active %}
         <div class="mt-5"><h3>Auction is closed!</h3></div>
-        {% if listing.winner %}
-        <div><p>The winner is <b>{{ listing.winner }}</b></p></div>
+        {% if listing.winner == request.user %}
+        <div><p>You are the winner!</p></div>
         {% endif %}
         {% endif %}
 

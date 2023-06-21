@@ -11,11 +11,12 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ('creator', 'title', 'slug', 'cat', 'description', 'image', 'timestamp', 'is_active')
+    list_display = ('creator', 'title', 'cat', 'timestamp', 'is_active')
+    list_display_links = ('creator', 'title',)
     list_editable = ('is_active',)
     search_fields = ('creator', 'title')
     prepopulated_fields = {'slug': ('title',)}
-    list_filter = ('is_active', 'timestamp', 'cat')
+    list_filter = ('cat',)
 
 
 class BidAdmin(admin.ModelAdmin):
@@ -24,9 +25,9 @@ class BidAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('comment_text', 'comment_author', 'listing', 'timestamp', 'is_active')
+    list_display = ('comment_author', 'listing', 'timestamp', 'is_active')
+    list_display_links = ('comment_author', 'listing',)
     list_editable = ('is_active',)
-    list_filter = ('comment_author', 'listing',)
 
 
 class UserAdmin(admin.ModelAdmin):

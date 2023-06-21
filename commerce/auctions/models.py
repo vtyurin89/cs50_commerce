@@ -27,8 +27,8 @@ class Listing(models.Model):
                                 verbose_name='Creator')
     title = models.CharField(max_length=250, db_index=True, verbose_name='Title')
     slug = models.SlugField(max_length=300, db_index=True, unique=True, verbose_name='URL part (slug)')
-    cat = models.ForeignKey('Category', verbose_name='Category', on_delete=models.CASCADE)
-    price = models.FloatField(verbose_name='Starting bid')
+    cat = models.ForeignKey('Category', null=True, blank=True, verbose_name='Category', on_delete=models.CASCADE)
+    price = models.FloatField(verbose_name='Price')
     description = models.TextField(blank=True, verbose_name='Description')
     image = models.URLField(null=True, blank=True, verbose_name='Image url')
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name='Timestamp')
@@ -50,7 +50,7 @@ class Listing(models.Model):
 class Bid(models.Model):
     bidder = models.ForeignKey('User', blank=True, null=True, on_delete=models.CASCADE, verbose_name='Bidder')
     listing = models.ForeignKey('Listing', on_delete=models.CASCADE, verbose_name='Listing')
-    bid_amount = models.PositiveIntegerField(verbose_name='Bid amount')
+    bid_amount = models.FloatField(verbose_name='Bid amount')
     timestamp = models.DateTimeField(auto_now_add=True, verbose_name='Timestamp')
 
     def __str__(self):

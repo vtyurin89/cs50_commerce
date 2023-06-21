@@ -12,14 +12,6 @@ from .models import User, Category, Listing, Bid, Comment
 from .forms import CreateListingForm, BidAmountForm
 from .utils import check_cyrillic, translate_cyrillic, create_unique_slug
 
-"""
-TODO
- - Add positive price validator
- - Bids price - floatfield
- - Make category optional
-"""
-
-
 
 def index(request):
     categories = Category.objects.all()
@@ -145,7 +137,7 @@ def watchlist(request):
 
 def show_category(request, cat_slug):
     category = Category.objects.get(slug=cat_slug)
-    cat_listings = Listing.objects.filter(cat=category).order_by("-id")
+    cat_listings = Listing.objects.filter(cat=category, is_active=True).order_by("-id")
 
     #pagination
     pagination_range = 12
