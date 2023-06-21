@@ -35,6 +35,7 @@ class Listing(models.Model):
     is_active = models.BooleanField(default=True, verbose_name='Is currently active')
     winner = models.ForeignKey('User', blank=True, null=True, on_delete=models.PROTECT,
                                related_name="winner", verbose_name='Winner')
+    watchlist = models.ManyToManyField('User', blank=True, null=True, related_name='added_to_watchlist')
 
     def __str__(self):
         return self.title

@@ -16,7 +16,6 @@ from .utils import check_cyrillic, translate_cyrillic, create_unique_slug
 TODO
  - Add positive price validator
  - Bids price - floatfield
- - No null comments
  - Make category optional
 """
 
@@ -129,7 +128,16 @@ def categories(request):
 
 @login_required
 def watchlist(request):
+    watchlist_listings = request.user.added_to_watchlist.all().order_by("-id")
+
+    # pagination
+    pagination_range = 12
+    paginator = Paginator(watchlist_listings, pagination_range)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
     context = {
+        'page_obj': page_obj,
         'context_menu_pos': 3,
     }
     return render(request, "auctions/watchlist.html", context)
@@ -158,9 +166,9 @@ def show_listing(request, listing_slug):
         listing = Listing.objects.get(slug=listing_slug)
     except ObjectDoesNotExist:
         raise Http404
-    bid_form = BidAmountForm(request.POST or None)
+    bid_form = BidAmountForm()
 
-    if request.method=='POST':
+    if request.method == 'POST':
         if 'bid_amount' in request.POST:
             bid_form = BidAmountForm(request.POST, listing=listing)
             if bid_form.is_valid():
@@ -168,6 +176,8 @@ def show_listing(request, listing_slug):
                 new_bid.bidder = request.user
                 new_bid.listing = listing
                 new_bid.save()
+                listing.price = new_bid.bid_amount
+                listing.save()
                 return redirect('show_listing', listing_slug=listing_slug)
 
         elif 'comment' in request.POST and request.POST['comment'] != '':
@@ -176,6 +186,21 @@ def show_listing(request, listing_slug):
                 comment_author=request.user,
                 listing=listing,
             )
+            return redirect('show_listing', listing_slug=listing_slug)
+        elif 'watchlist' in request.POST:
+            if request.user in listing.watchlist.all():
+                listing.watchlist.remove(request.user)
+            else:
+                listing.watchlist.add(request.user)
+            return redirect('show_listing', listing_slug=listing_slug)
+        elif 'close' in request.POST:
+            listing.is_active = False
+            bids = Bid.objects.filter(listing=listing).order_by("-bid_amount")
+            if not bids:
+                listing.winner = None
+            else:
+                listing.winner = bids[0].bidder
+            listing.save()
             return redirect('show_listing', listing_slug=listing_slug)
     bids = Bid.objects.filter(listing=listing).order_by("-bid_amount")
     max_bid = None
@@ -189,5 +214,7 @@ def show_listing(request, listing_slug):
         'max_bid': max_bid,
         'comments': comments,
         'bid_form': bid_form,
+        'in_watchlist': request.user in listing.watchlist.all(),
+        'my_listing': request.user == listing.creator,
     }
     return render(request, "auctions/show_listing.html", context)

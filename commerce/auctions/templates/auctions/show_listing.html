@@ -30,11 +30,22 @@
 
         <div><div class="d-inline-flex"><b>Bids:</b><h2 class="ms-3">{{ bids.count }}</h2></div></div>
 
-        {% if max_bid and max_bid.bidder == request.user %}
+
+        {% if max_bid and max_bid.bidder == request.user and listing.is_active %}
         <div><p>Your bid is the current bid.</p></div>
         {% endif %}
 
+        {% if not listing.is_active %}
+        <div class="mt-5"><h3>Auction is closed!</h3></div>
+        {% if listing.winner %}
+        <div><p>The winner is <b>{{ listing.winner }}</b></p></div>
+        {% endif %}
+        {% endif %}
+
+
         {% if user.is_authenticated %}
+        <!-- Bid -->
+        {% if listing.is_active %}
         <form method="post" class="mt-3">
             {% csrf_token %}
             {% for  part in bid_form %}
@@ -44,7 +55,32 @@
              <div>{{ form.non_field_errors }}</div>
         <button type="submit" class="btn btn-primary btn-lg mt-3">Place bid</button>
         </form>
-        <button type="button" class="btn btn-outline-primary btn-lg mt-3">Add to watchlist</button>
+        {% endif %}
+
+        <!-- Watchlist -->
+        <form method="post">
+            {% csrf_token %}
+        <button type="submit" class="btn btn-outline-primary btn-lg mt-3" name='watchlist'>
+            {% if in_watchlist %}
+            Remove from watchlist
+            {% else %}
+            Add to watchlist
+            {% endif %}
+        </button>
+        </form>
+
+        <!-- Close -->
+        {% if listing.is_active %}
+        {% if my_listing %}
+        <form method="post">
+            {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-lg mt-3" name='close'>
+            Close Auction
+        </button>
+        </form>
+        {% endif %}
+        {% endif %}
+
         {% endif %}
 
     </div>
