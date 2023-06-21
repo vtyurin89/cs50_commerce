@@ -21,7 +21,7 @@ class ListingAdmin(admin.ModelAdmin):
 
 class BidAdmin(admin.ModelAdmin):
     list_display = ('bidder', 'listing', 'bid_amount', 'timestamp')
-    list_filter = ('bidder', 'listing',)
+    list_display_links = ('bidder', 'listing',)
 
 
 class CommentAdmin(admin.ModelAdmin):
